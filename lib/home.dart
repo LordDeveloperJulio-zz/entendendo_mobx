@@ -1,17 +1,28 @@
-import 'package:app_mobx/controller.dart';
-import 'package:app_mobx/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
+import 'controller.dart';
+
 class MyHomePage extends StatelessWidget {
   final controller = Controller();
+
+  _textField({String labelText, onChanged, String Function() erroText}) {
+    return TextField(
+      onChanged: onChanged,
+      decoration: InputDecoration(
+        border: OutlineInputBorder(),
+        labelText: labelText,
+        errorText: erroText == null ? null : erroText(),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Mobx"),
+        title: Text("Formulário"),
       ),
       body: Center(
         child: Padding(
@@ -19,33 +30,26 @@ class MyHomePage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              TextField(
-                decoration: InputDecoration(labelText: 'Nome'),
-                onChanged: controller.mudarNome,
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              TextField(
-                decoration: InputDecoration(labelText: 'Sobrenome'),
-                onChanged: controller.mudarSobrenome,
-              ),
-              SizedBox(
-                height: 20,
-              ),
+              Observer(builder: (_) {
+                return _textField(
+                    erroText: controller.validateName,
+                    labelText: "name",
+                    onChanged: controller.client.changeName);
+              }),
+              SizedBox(height: 20,),
+              Observer(builder: (_) {
+                return _textField(
+                    erroText: controller.validateEmail,
+                    labelText: "email",
+                    onChanged: controller.client.changeEmail);
+              }),
+              SizedBox(height: 20,),
               Observer(builder: (_){
-                return Text('${controller.nomecompleto}');
-              })
+                return RaisedButton(onPressed: controller.isValid ? (){} : null, child: Text("Salvar"),);
+              }),
             ],
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          controller;
-        },
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
